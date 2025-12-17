@@ -6,7 +6,12 @@ try:
     from random import Random, choice
 
 except ImportError:
-    exit('Failed to load libraries')
+    exit('Failed to load libraries') if __name__ == '__main__' else None
+    import pygame as pg
+    from simple_sprite import SimpleSprite
+    from simple_sprite import SimpleSprite
+    import numpy as np
+    from random import Random, choice
 
 window_width = 800
 window_height = 600
@@ -102,17 +107,19 @@ while True:
         drag_started = pg.mouse.get_pos()
 
     else:
+        # if dragged_sprite is not None:
+        #     for i in core.get_rect_snaps():
+        #         print(i)
+        #         if dragged_sprite.get_rect().collidepoint(*i):
+        #             sprites.remove(dragged_sprite)
+        #             robot.append(dragged_sprite)
+        #             dragged_sprite.move_to(*choice(core.get_rect_snaps()))
+        #
+        #         else:
+        #             dragged_sprite.move_to(*positions[dragged_sprite])
         if dragged_sprite is not None:
-            for i in core.get_rect_snaps():
-                print(i)
-                if dragged_sprite.get_rect().collidepoint(*i):
-                    sprites.remove(dragged_sprite)
-                    robot.append(dragged_sprite)
-                    dragged_sprite.move_to(*choice(core.get_rect_snaps()))
-
-                else:
-                    dragged_sprite.move_to(*positions[dragged_sprite])
-
+            sprites.remove(dragged_sprite)
+            robot.append(dragged_sprite)
         drag_started = None
         dragged_sprite = None
 
