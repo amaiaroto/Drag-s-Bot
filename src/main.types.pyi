@@ -6,3 +6,10 @@ dt: int
 speed: int
 
 ex: str
+
+robot_pos: tuple[int, int]
+robot: list[str]
+
+list_of_strings: list[str]
+a: Random
+list_of_sprites: list[SimpleSprite]
