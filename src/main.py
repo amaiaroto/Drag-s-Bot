@@ -6,7 +6,12 @@ try:
     from random import Random, choice
 
 except ImportError:
-    exit('Failed to load libraries')
+    exit('Failed to load libraries') if __name__ == '__main__' else None
+    import pygame as pg
+    from simple_sprite import SimpleSprite
+    from simple_sprite import SimpleSprite
+    import numpy as np
+    from random import Random, choice
 
 window_width = 800
 window_height = 600
