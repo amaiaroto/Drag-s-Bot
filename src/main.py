@@ -4,6 +4,7 @@ try:
     from simple_sprite import SimpleSprite
     import numpy as np
     from random import Random, choice
+    import math
 
 except ImportError:
     exit('Failed to load libraries') if __name__ == '__main__' else None
@@ -12,6 +13,7 @@ except ImportError:
     from simple_sprite import SimpleSprite
     import numpy as np
     from random import Random, choice
+    import math
 
 window_width = 800
 window_height = 600
@@ -19,8 +21,10 @@ drawer_height = 50
 ex = '.png'
 robot_pos = (0, 0)
 
-def get_asset_path(name,extension=ex):
-    return "../assets/" + name+extension
+
+def get_asset_path(name, extension=ex):
+    return "../assets/" + name + extension
+
 
 screen = pg.display.set_mode((window_width, window_height))
 
@@ -54,6 +58,13 @@ if True:
 positions = {}
 
 
+def dist(position_1: tuple[int, int] | tuple[int, int, int],
+         position_2: tuple[int, int] | tuple[int, int, int],
+         z: bool = False):
+    return math.sqrt((position_1[0] - position_2[0]) ** 2 + (position_1[1] - position_2[1]) ** 2 + (
+        (position_1[2] - position_2[2]) ** 2 if z else 0))
+
+
 def draw_part_drawer(sprite: list[SimpleSprite], x, y):
     global padding
 
@@ -61,7 +72,7 @@ def draw_part_drawer(sprite: list[SimpleSprite], x, y):
         s.move_to(x, y - padding)
         positions[s] = (s.x, s.y)
 
-        # Move to next sprite position
+        # Move to the next sprite position
         x += s.image.get_width() + padding
 
 
@@ -96,6 +107,19 @@ while True:
     if pg.mouse.get_pressed()[0]:
         if drag_started and dragged_sprite:
             dragged_sprite.move_by(*np.subtract(pg.mouse.get_pos(), drag_started))
+            snap_points = core.get_rect_snaps()
+            # check all snap points of the core sprite
+
+            # find distance to each if one has distance < the snap threshold for the core sprite,
+            # then set snap for drag_sprite to that snap point and break
+            # else set snap for drag_sprite to none
+            for i in snap_points:
+                if dist(dragged_sprite.get_pos(), i) < core.get_th():
+                    dragged_sprite.snap_point = i
+                    break
+
+                else:
+                    dragged_sprite.snap_point = None
 
         else:
             for s in sprites:
@@ -117,17 +141,16 @@ while True:
         #
         #         else:
         #             dragged_sprite.move_to(*positions[dragged_sprite])
-        if dragged_sprite is not None:
-            sprites.remove(dragged_sprite)
-            robot.append(dragged_sprite)
+        if dragged_sprite:
+            if dragged_sprite.snap_point:
+                sprites.remove(dragged_sprite)
+                robot.append(dragged_sprite)
+            else:
+                dragged_sprite.move_to(*positions[dragged_sprite])
         drag_started = None
         dragged_sprite = None
 
-    #     stick part here
-
-    # TODO: add movement to body + stuck part (another list of body+stuck parts)
-
-    screen.fill((180, 160, 255))
+    screen.fill((180, 160, 0))
 
     for s in sprites:
         s.draw(screen)
@@ -136,6 +159,5 @@ while True:
         i.draw(screen)
 
     pg.display.flip()
-    snap_points = core.get_rect()
 
     dt = clock.tick(60) / 1000
