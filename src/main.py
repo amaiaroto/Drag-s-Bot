@@ -33,12 +33,13 @@ robot = ['banban']
 list_of_strings = map(lambda x: get_asset_path(x), list_of_strings)
 robot = map(lambda x: get_asset_path(x), robot)
 
-sprites = [SimpleSprite(pg.image.load(s)) for s in list_of_strings]
+sprites = [SimpleSprite(pg.image.load(s), name=s) for s in list_of_strings]
 robot = [SimpleSprite(pg.image.load(i)) for i in robot]
 pg.display.set_caption('Simple Drag')
 pg.display.set_icon(pg.image.load(get_asset_path('not ready yet-1.png')))
 padding = 12
 core = robot[0]
+snap_names = list()
 
 for s in sprites:
     s.scale_by_height(drawer_height)
@@ -104,10 +105,13 @@ while True:
         for s in robot:
             s.move_by(-loop_speed, 0)
 
+    # print(robot)
+
     if pg.mouse.get_pressed()[0]:
         if drag_started and dragged_sprite:
             dragged_sprite.move_by(*np.subtract(pg.mouse.get_pos(), drag_started))
             snap_points = core.get_rect_snaps()
+            #print(snap_points)
             # check all snap points of the core sprite
 
             # find distance to each if one has distance < the snap threshold for the core sprite,
@@ -142,11 +146,18 @@ while True:
         #         else:
         #             dragged_sprite.move_to(*positions[dragged_sprite])
         if dragged_sprite:
-            if dragged_sprite.snap_point:
+            if dragged_sprite.snap_point and dragged_sprite.snap_point not in snap_names:
                 sprites.remove(dragged_sprite)
                 robot.append(dragged_sprite)
+                snap_point=dragged_sprite.snap_point
+                snap_names.append(dragged_sprite.name)
+                dragged_sprite.snap_point=None
+                dragged_sprite.removeSnapPoint(snap_point)
+                dragged_sprite.move_to(*snap_point,center=True)
+
             else:
                 dragged_sprite.move_to(*positions[dragged_sprite])
+
         drag_started = None
         dragged_sprite = None
 
@@ -161,3 +172,6 @@ while True:
     pg.display.flip()
 
     dt = clock.tick(60) / 1000
+
+    # TODO: Ocupy snap point so others can't sit down there. DUE SATURDAY 8:00 AM!
+    #  VERY VERY VERY LATE WORK!

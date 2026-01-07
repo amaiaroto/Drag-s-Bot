@@ -9,6 +9,7 @@ class SimpleSprite:
         self.image = image
         self.draggable: bool = is_draggable
         self.snap_point = None
+        self.disabled_snaps=set()
 
     def center_tuple(self,tuple):
         return tuple[0] - self.image.get_width() / 2, tuple[1] - self.image.get_height() / 2
@@ -27,7 +28,8 @@ class SimpleSprite:
 
     def scale(self, factor):
         self.image = pygame.transform.scale(self.image,
-                                            (self.image.get_width() / factor, self.image.get_height() / factor))
+                                            (self.image.get_width() / factor,
+                                             self.image.get_height() / factor))
 
     def scale_by_width(self, wanted_width):
         factor = self.image.get_width() / wanted_width
@@ -56,10 +58,19 @@ class SimpleSprite:
 
     def get_rect_snaps(self):
         r = self.get_rect()
-        return [r.topleft, r.topright, r.bottomright, r.bottomleft]
+        return [x for x in [r.topleft, r.topright, r.bottomright,
+                            r.bottomleft] if x not in self.disabled_snaps]
 
     def get_pos(self):
         return (self.x, self.y)
 
     def get_th(self):
-        return 50
+        a = self.get_rect_snaps()
+        return 50 if a else 67
+
+    def removeSnapPoint(self, snap_point):
+        self.disabled_snaps.add(snap_point)
+
+
+if __name__ == '__main__':
+    exec(open('main.py', 'r').read())
